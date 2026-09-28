@@ -1,4 +1,4 @@
-# obticallens
+# opticallens
 
 3D Optical Lens Simulator
 
