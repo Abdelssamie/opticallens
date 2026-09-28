@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spectacle Lens Simulator — Educational Optics</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header id="app-header">
+  <h1>Spectacle Lens Simulator</h1>
+  <p class="subtitle">
+    An educational tool for exploring how sphere, cylinder and axis shape the
+    optical power of a spectacle lens — and what that power implies about an
+    approximate 3D lens and frame form.
+  </p>
+  <div class="disclaimer-band">
+    <strong>Approximate educational geometry — not a manufacturing model.</strong>
+    Prescription values (SPH / CYL / AXIS / PD) describe optical power and do
+    not uniquely determine the physical manufactured lens or frame geometry.
+    The 3D model here is an educational approximation built from the
+    parameters you supply.
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- ============ LEFT: prescription controls ============ -->
+  <aside class="panel controls-panel">
+    <h2>Left eye — prescription</h2>
+
+    <div class="field">
+      <div class="field-row">
+        <label for="sphRange">Sphere (SPH)</label>
+        <span class="unit-hint">D</span>
+      </div>
+      <div class="field-pair">
+        <input type="range" id="sphRange" min="-20" max="20" step="0.25" value="-2" />
+        <input type="number" id="sphNumber" class="value-input" min="-20" max="20" step="0.25" value="-2.00" />
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <label for="cylRange">Cylinder (CYL)</label>
+        <span class="unit-hint">D</span>
+      </div>
+      <div class="field-pair">
+        <input type="range" id="cylRange" min="-20" max="20" step="0.25" value="-3.25" />
+        <input type="number" id="cylNumber" class="value-input" min="-20" max="20" step="0.25" value="-3.25" />
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <label for="axisRange">Axis</label>
+        <span class="unit-hint">°  (0° = 180°)</span>
+      </div>
+      <div class="field-pair">
+        <input type="range" id="axisRange" min="0" max="180" step="1" value="125" />
+        <input type="number" id="axisNumber" class="value-input" min="0" max="180" step="1" value="125" />
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-row"><label>Cylinder convention</label></div>
+      <div class="toggle-row">
+        <button id="minusCylBtn" class="active">Minus cylinder</button>
+        <button id="plusCylBtn">Plus cylinder</button>
+      </div>
+    </div>
+
+    <!-- Right-eye panel: only shown when the eye selector includes the right eye.
+         Deliberately a separate, independent set of inputs — nothing here is
+         auto-derived from the left eye. -->
+    <div id="rightEyePanel" hidden>
+      <hr class="divider" />
+      <h2>Right eye — prescription</h2>
+      <div class="field">
+        <div class="field-row"><label for="rSphRange">Sphere (SPH)</label><span class="unit-hint">D</span></div>
+        <div class="field-pair">
+          <input type="range" id="rSphRange" min="-20" max="20" step="0.25" value="-1" />
+          <input type="number" id="rSphNumber" class="value-input" min="-20" max="20" step="0.25" value="-1.00" />
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-row"><label for="rCylRange">Cylinder (CYL)</label><span class="unit-hint">D</span></div>
+        <div class="field-pair">
+          <input type="range" id="rCylRange" min="-20" max="20" step="0.25" value="-0.75" />
+          <input type="number" id="rCylNumber" class="value-input" min="-20" max="20" step="0.25" value="-0.75" />
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-row"><label for="rAxisRange">Axis</label><span class="unit-hint">°  (0° = 180°)</span></div>
+        <div class="field-pair">
+          <input type="range" id="rAxisRange" min="0" max="180" step="1" value="90" />
+          <input type="number" id="rAxisNumber" class="value-input" min="0" max="180" step="1" value="90" />
+        </div>
+      </div>
+      <div class="unit-hint">Independent from the left eye by design — nothing here is mirrored automatically.</div>
+    </div>
+
+    <hr class="divider" />
+
+    <div class="field">
+      <div class="field-row">
+        <label for="diaRange">Lens diameter (uncut blank)</label>
+        <span class="unit-hint">mm</span>
+      </div>
+      <div class="field-pair">
+        <input type="range" id="diaRange" min="40" max="80" step="1" value="65" />
+        <input type="number" id="diaNumber" class="value-input" min="40" max="80" step="1" value="65" />
+      </div>
+      <div class="unit-hint" style="margin-top:4px;" id="diaHintFrame" hidden>
+        With the frame on, the lens is edged to the frame opening instead — this
+        blank size only matters in "no frame" mode.
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <label for="indexRange">Refractive index (n)</label>
+        <span class="unit-hint"></span>
+      </div>
+      <div class="field-pair">
+        <input type="range" id="indexRange" min="1.50" max="1.80" step="0.01" value="1.50" />
+        <input type="number" id="indexNumber" class="value-input" min="1.50" max="1.80" step="0.01" value="1.50" />
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <label for="thicknessRange">Center thickness</label>
+        <span class="unit-hint">mm</span>
+      </div>
+      <div class="field-pair">
+        <input type="range" id="thicknessRange" min="0.5" max="12" step="0.1" value="2.0" />
+        <input type="number" id="thicknessNumber" class="value-input" min="0.5" max="12" step="0.1" value="2.0" />
+      </div>
+      <div class="unit-hint" style="margin-top:4px;">Approximate thickness visualization — see disclaimer.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-row">
+        <label for="baseCurveRange">Base curve (front)</label>
+        <span class="unit-hint">D</span>
+      </div>
+      <div class="field-pair">
+        <input type="range" id="baseCurveRange" min="0" max="12" step="0.25" value="6" />
+        <input type="number" id="baseCurveNumber" class="value-input" min="0" max="12" step="0.25" value="6" />
+      </div>
+      <div class="unit-hint" style="margin-top:4px;">
+        Front surface is modeled as spherical; the back surface carries the
+        astigmatic (per-meridian) component — a modeling choice, not the only
+        way a real lens could be cut.
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <div class="field">
+      <div class="field-row"><label>Presets (left eye)</label></div>
+      <div class="presets">
+        <button class="preset-btn" data-sph="-2" data-cyl="0" data-axis="0">1: −2.00 sph</button>
+        <button class="preset-btn" data-sph="-2" data-cyl="-3.25" data-axis="125">2: −2.00/−3.25×125</button>
+        <button class="preset-btn" data-sph="2" data-cyl="-1.5" data-axis="90">3: +2.00/−1.50×90</button>
+        <button class="preset-btn" data-sph="0" data-cyl="-3" data-axis="180">4: pl/−3.00×180</button>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <div class="field">
+      <button id="compareToggleBtn" style="width:100%;">Compare spherical vs cylindrical</button>
+      <div class="unit-hint" style="margin-top:6px;" id="compareFrameNote" hidden>
+        Compare mode shows the left-eye lens only and is unavailable while the frame is on.
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ CENTER: 3D viewer (hero) ============ -->
+  <main class="panel viewer-panel">
+    <div class="viewer-toolbar">
+      <button id="viewReset">Reset view</button>
+      <button id="viewFront">Front</button>
+      <button id="viewSide">Side</button>
+      <button id="viewOblique">3/4</button>
+      <button id="viewTop">Top</button>
+      <button id="autoRotateBtn">Auto-rotate</button>
+      <button id="solidToggleBtn">Show solid geometry</button>
+    </div>
+
+    <div id="three-container">
+      <div class="viewer-badge">Drag to rotate · scroll / pinch to zoom · right-drag to pan</div>
+    </div>
+
+    <div class="overlay-toggles">
+      <label class="checkbox-row"><input type="checkbox" id="ovAxisLine" checked /> Axis line(s)</label>
+      <label class="checkbox-row"><input type="checkbox" id="ovPerpLine" checked /> Perpendicular line(s)</label>
+      <label class="checkbox-row"><input type="checkbox" id="ovCenter" checked /> Optical center(s)</label>
+      <label class="checkbox-row"><input type="checkbox" id="ovLabels" checked /> Angle / power labels</label>
+      <label class="checkbox-row"><input type="checkbox" id="ovMeasurements" /> Show measurements</label>
+    </div>
+  </main>
+
+  <!-- ============ RIGHT: numerical info ============ -->
+  <aside class="panel info-panel">
+    <h2>Optical calculations <span class="unit-hint">(left eye)</span></h2>
+    <dl class="info-list">
+      <dt>SPH</dt><dd id="outSph" class="mono">—</dd>
+      <dt>CYL</dt><dd id="outCyl" class="mono">—</dd>
+      <dt>AXIS</dt><dd id="outAxis" class="mono">—</dd>
+      <dt>Power at axis</dt><dd id="outPowerAxis" class="mono axis">—</dd>
+      <dt>Power at perpendicular</dt><dd id="outPowerPerp" class="mono perp">—</dd>
+      <dt>Spherical equivalent</dt><dd id="outSE" class="mono">—</dd>
+      <dt>Minimum power</dt><dd id="outMinPower" class="mono">—</dd>
+      <dt>Maximum power</dt><dd id="outMaxPower" class="mono">—</dd>
+      <dt>Refractive index</dt><dd id="outIndex" class="mono">—</dd>
+      <dt>Lens diameter</dt><dd id="outDiameter" class="mono">—</dd>
+      <dt>Center thickness</dt><dd id="outThickness" class="mono">—</dd>
+      <dt>Edge thickness (approx.)</dt><dd id="outEdgeThickness" class="mono">—</dd>
+      <dt>Base curve</dt><dd id="outBaseCurve" class="mono">—</dd>
+    </dl>
+
+    <div class="meridian-block">
+      <div class="m-line axis-line"><span>Principal meridian 1</span><span class="val" id="m1Label">—</span></div>
+      <div class="m-line axis-line"><span>Power</span><span class="val" id="m1Power">—</span></div>
+      <div class="m-line perp-line" style="margin-top:8px;"><span>Principal meridian 2</span><span class="val" id="m2Label">—</span></div>
+      <div class="m-line perp-line"><span>Power</span><span class="val" id="m2Power">—</span></div>
+    </div>
+
+    <div class="meridian-block" id="rightEyeInfoBlock" hidden>
+      <h2 style="margin-bottom:8px;">Right eye</h2>
+      <dl class="info-list">
+        <dt>SPH / CYL / AXIS</dt><dd id="rOutRx" class="mono">—</dd>
+        <dt>Power at axis</dt><dd id="rOutPowerAxis" class="mono axis">—</dd>
+        <dt>Power at perpendicular</dt><dd id="rOutPowerPerp" class="mono perp">—</dd>
+        <dt>Spherical equivalent</dt><dd id="rOutSE" class="mono">—</dd>
+      </dl>
+    </div>
+
+    <div class="meridian-block" id="pdInfoBlock" hidden>
+      <h2 style="margin-bottom:8px;">Fitting</h2>
+      <dl class="info-list">
+        <dt>PD used</dt><dd id="outPdUsed" class="mono">—</dd>
+        <dt>Left decentration</dt><dd id="outDecLeft" class="mono">—</dd>
+        <dt>Right decentration</dt><dd id="outDecRight" class="mono">—</dd>
+      </dl>
+    </div>
+  </aside>
+</div>
+
+<!-- ============ EYEWEAR: eye/frame mode, right-eye trigger, frame params, PD ============ -->
+<div class="frame-row">
+  <section class="panel frame-panel">
+    <h2>Eyewear</h2>
+    <div class="frame-grid">
+
+      <div class="frame-field-group">
+        <div class="field-row"><label>Eye</label></div>
+        <div class="toggle-row three">
+          <button id="eyeLeftBtn" class="active">Left</button>
+          <button id="eyeRightBtn">Right</button>
+          <button id="eyeBothBtn">Both</button>
+        </div>
+        <label class="checkbox-row" style="margin-top:12px;">
+          <input type="checkbox" id="frameToggle" /> Show eyeglass frame
+        </label>
+      </div>
+
+      <div class="frame-field-group" id="frameShapeGroup" hidden>
+        <div class="field-row"><label for="frameShapeSelect">Frame shape</label></div>
+        <select id="frameShapeSelect" class="select-input">
+          <option value="round">Round</option>
+          <option value="oval">Oval</option>
+          <option value="rectangle">Rectangle</option>
+          <option value="square">Square</option>
+          <option value="aviator">Aviator</option>
+          <option value="catEye">Cat-eye</option>
+        </select>
+        <div class="field-row" style="margin-top:10px;"><label for="frameMaterialSelect">Frame material</label></div>
+        <select id="frameMaterialSelect" class="select-input">
+          <option value="plastic">Plastic</option>
+          <option value="metal">Metal</option>
+          <option value="transparent">Transparent</option>
+          <option value="custom">Custom</option>
+        </select>
+        <div class="field-row" style="margin-top:10px;"><label for="frameColorInput">Frame color</label></div>
+        <input type="color" id="frameColorInput" value="#2b2f38" class="color-input" />
+      </div>
+
+      <div class="frame-field-group" id="frameDimsGroup" hidden>
+        <div class="field-row"><label>Frame dimensions</label></div>
+        <div class="field-row"><label for="lensWRange">Lens width</label><span class="unit-hint">mm</span></div>
+        <div class="field-pair"><input type="range" id="lensWRange" min="30" max="65" step="1" value="50" /><input type="number" id="lensWNumber" class="value-input" min="30" max="65" step="1" value="50" /></div>
+        <div class="field-row"><label for="lensHRange">Lens height</label><span class="unit-hint">mm</span></div>
+        <div class="field-pair"><input type="range" id="lensHRange" min="24" max="55" step="1" value="42" /><input type="number" id="lensHNumber" class="value-input" min="24" max="55" step="1" value="42" /></div>
+        <div class="field-row"><label for="bridgeRange">Bridge width</label><span class="unit-hint">mm</span></div>
+        <div class="field-pair"><input type="range" id="bridgeRange" min="12" max="26" step="0.5" value="18" /><input type="number" id="bridgeNumber" class="value-input" min="12" max="26" step="0.5" value="18" /></div>
+        <div class="field-row"><label for="templeRange">Temple length</label><span class="unit-hint">mm</span></div>
+        <div class="field-pair"><input type="range" id="templeRange" min="120" max="150" step="1" value="140" /><input type="number" id="templeNumber" class="value-input" min="120" max="150" step="1" value="140" /></div>
+        <div class="field-row"><label for="frameThicknessRange">Frame thickness</label><span class="unit-hint">mm</span></div>
+        <div class="field-pair"><input type="range" id="frameThicknessRange" min="1.5" max="7" step="0.25" value="3.2" /><input type="number" id="frameThicknessNumber" class="value-input" min="1.5" max="7" step="0.25" value="3.2" /></div>
+        <div class="unit-hint" style="margin-top:6px;">
+          Frame width/height below are <em>derived</em> from these, not set
+          directly — independent sliders for both would let you dial in
+          contradictory geometry.
+        </div>
+        <div class="field-row" style="margin-top:6px;"><label>Frame width (derived)</label><span class="val mono" id="frameWidthOut">—</span></div>
+        <div class="field-row"><label>Frame height (derived)</label><span class="val mono" id="frameHeightOut">—</span></div>
+      </div>
+
+      <div class="frame-field-group" id="pdGroup" hidden>
+        <div class="field-row"><label for="pdRange">Pupillary distance (PD)</label><span class="unit-hint">mm</span></div>
+        <div class="field-pair"><input type="range" id="pdRange" min="50" max="75" step="0.5" value="63" /><input type="number" id="pdNumber" class="value-input" min="50" max="75" step="0.5" value="63" /></div>
+        <label class="checkbox-row" style="margin-top:8px;"><input type="checkbox" id="pdSeparateToggle" /> Use separate left/right PD</label>
+        <div id="pdSeparateFields" hidden>
+          <div class="field-row"><label for="pdLeftRange">Left PD</label><span class="unit-hint">mm</span></div>
+          <div class="field-pair"><input type="range" id="pdLeftRange" min="25" max="40" step="0.5" value="31.5" /><input type="number" id="pdLeftNumber" class="value-input" min="25" max="40" step="0.5" value="31.5" /></div>
+          <div class="field-row"><label for="pdRightRange">Right PD</label><span class="unit-hint">mm</span></div>
+          <div class="field-pair"><input type="range" id="pdRightRange" min="25" max="40" step="0.5" value="31.5" /><input type="number" id="pdRightNumber" class="value-input" min="25" max="40" step="0.5" value="31.5" /></div>
+        </div>
+        <div class="unit-hint" style="margin-top:6px;">
+          Binocular PD is split PD/2 · PD/2 unless separate values are given
+          — that split is an assumption, not a measurement. PD sets
+          decentration, not lens shape.
+        </div>
+      </div>
+
+    </div>
+    <div class="disclaimer-band" style="margin-top:14px;">
+      Prescription values describe optical power and do not uniquely
+      determine the physical manufactured lens or frame geometry. The 3D
+      model is an educational approximation.
+    </div>
+  </section>
+</div>
+
+<!-- ============ BOTTOM: power map / cross-section / explain ============ -->
+<div class="bottom-row">
+  <section class="panel power-map-wrap">
+    <h2>Power map <span class="unit-hint">(left eye)</span></h2>
+    <canvas id="powerMapCanvas"></canvas>
+    <div class="readout">
+      <span class="axis-read" id="pmAngleReadout">Angle: —°</span>
+      <span class="power-read" id="pmPowerReadout">Power: — D</span>
+    </div>
+    <p class="power-caption">Drag the handle around the circle to sample power at any meridian.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Cross-section <span class="unit-hint">(left eye, approximate)</span></h2>
+    <canvas id="crossSectionCanvas"></canvas>
+    <p class="cross-caption">
+      Shows the front and back surface profile along the two principal
+      meridians. An approximation unless full manufacturing parameters are
+      supplied.
+    </p>
+  </section>
+
+  <section class="panel explain-panel">
+    <h2>Explain <span class="unit-hint">(left eye)</span></h2>
+    <div id="explainBody"><!-- filled dynamically --></div>
+  </section>
+</div>
+
+<!-- ============ Compare mode (hidden until toggled; left eye, no-frame only) ============ -->
+<div class="compare-row" id="compareRow" hidden>
+  <section class="panel compare-panel">
+    <h2>Spherical component vs. sphere + cylinder <span class="unit-hint">(left eye)</span></h2>
+    <div class="compare-canvases">
+      <div class="compare-cell">
+        <div class="compare-label left">Spherical only (CYL = 0)</div>
+        <div class="compare-canvas-holder" id="compareLeftContainer"></div>
+      </div>
+      <div class="compare-cell">
+        <div class="compare-label right">Sphere + cylinder (current Rx)</div>
+        <div class="compare-canvas-holder" id="compareRightContainer"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer id="app-footer">
+  3D geometry is an educational approximation based on the supplied optical
+  and geometric parameters. It is not a prescription for manufacturing a
+  real lens or frame. Real spectacle lenses and frames may involve atoric or
+  freeform surfaces, prism, true decentered grinding, hinge mechanisms,
+  thickness optimization and frame engineering that this simulator does not
+  model. This application is an educational optical simulator, not a
+  medical diagnostic or manufacturing tool.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
